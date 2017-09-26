@@ -1,0 +1,74 @@
+<?php
+    include 'func.php';
+    
+    //header('Content-type: application/json; charset=utf-8');
+
+    $feed = get_Feed();
+    $data = $feed['channel']['item'][0]['description'];
+    $link = $feed['channel']['item'][0]['link'];
+    $pubDate = $feed['channel']['item'][0]['pubDate'];
+    $return = new ArrayObject();
+
+    //Feed Beast
+    for ($x=0; $x<=9; $x++) {
+        $data = $feed['channel']['item'][$x]['description'];
+        $source = getSource($data);
+        $title = $feed['channel']['item'][$x]['title'];
+        $title = str_replace("- ".$source,"",$title);
+        $link = $feed['channel']['item'][$x]['link'];
+        $pubDate = $feed['channel']['item'][$x]['pubDate'];
+        $img_data = getImage($data);
+        $img_data = str_replace("//","https://",$img_data);
+        $sum = getSummary($data);
+        $key = "article".$x;
+        
+        $content = '        <div class="alert alert-dismissible alert-primary">
+
+        <div class="panel-heading panel-primary">
+        <h3 class="panel-title">'.$title.'</h3>
+        </div>
+
+        <div class="panel-body">
+        <div class="row">
+        <div class="col-xs-4"> '.$img_data.'</div>
+        <div class="col-xs-8">           <br><a class="btn btn-block btn-primary btn-dropbox" href="'.$link.'" data-dismiss="alert">
+        Read More on '.$source.'
+        </a>
+
+        </div>
+
+        </div>
+        <br>
+        <div class="row">
+        <div class="col-xs-12"> '.$sum.' - <b>'.$source.'</b></div>
+        </div>
+        <hr>
+        <style type="text/css">
+        .centerd{
+        float: left;
+        color: #fff !important;
+        font-size: 18px;
+        }
+        </style>   
+        <button type="button" class="btn btn-default centerd" data-dismiss="alert"><i class="fa fa-remove"></i></button>
+
+        </div>
+        </div>
+
+
+
+        <hr>
+
+
+        ';
+        
+        $return[$key] = array($content);
+    }
+    $jsonp = json_encode($return);
+   if(isset($_GET['callback'])){
+    echo $_GET['callback'] . '(' . $jsonp . ')';
+}else{
+   echo $jsonp;
+}
+?>
+               
